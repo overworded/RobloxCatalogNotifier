@@ -5,7 +5,7 @@ from datetime import datetime
 RobloxCatalog = "https://catalog.roblox.com/v1/search/items?category=All&creatorName=Roblox&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3"
 UGCCatalog = "https://catalog.roblox.com/v1/search/items?category=Accessories&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3&subcategory=Accessories"
 RobloxWebhook = "https://discord.com/api/webhooks/......"
-UGCWebhook = "https://discord.com/api/webhooks/......."
+UGCWebhook = "https://discord.com/api/webhooks/......"
 
 def fetchItems(api):
     response = requests.get(api)
@@ -23,27 +23,38 @@ def printWithTS(text):
     return print(f"[{stamp}] - {text}")
 
 def thumbnail(itemid):
-    url = f"https://thumbnails.roblox.com/v1/assets?assetIds={itemid}&returnPolicy=PlaceHolder&size=250x250&format=Jpeg&isCircular=false"
+    url = f"https://thumbnails.roblox.com/v1/assets?assetIds={itemid}&size=250x250&format=Png"
     response = requests.get(url)
     imageUrl = response.json()["data"][0]["imageUrl"]
     return imageUrl
+
+def itemDetails(itemid):
+    url = f"https://api.roblox.com/marketplace/productinfo?assetId={itemid}"
+    response = requests.get(url)
+    return response.json()
 
 def compareItems(currentItems, previousItems, webhook):
     addedItems = [item for item in currentItems if item not in previousItems]
     if addedItems:
         printWithTS(f"{len(addedItems)} new item(s) added!")
         for item in addedItems:
+            itemDetails = itemDetails(item['id'])
             printWithTS(f"ID: {item['id']}, Type: {item['itemType']}")
             requests.post(webhook, json={
                 "embeds": [
                     {
-                        "title": f"New {item['itemType']} added to the Roblox Catalog!",
-                        "description": f"**ID:** {item['id']} \n **Link:** https://www.roblox.com/catalog/{item['id']}",
+                        "title": itemDetails['Name'],
+                        "url": f"https://www.roblox.com/catalog/{item['id']}",
+                        "fields": [
+                            {"name": "Price", "value": itemDetails['PriceInRobux'], "inline": True},
+                            {"name": "Creator", "value": itemDetails["Creator"]["Name"], "inline": True},
+                            {"name": "Description", "value": itemDetails['Description']},
+                        ],
                         "color": 0x84FF9B,
-                        "thumbnail": {
-                            "url": thumbnail(item['id'])
-                        }
-                    }
+                        "thumbnail": {"url": thumbnail(item['id'])},
+                        "footer": {"text": itemDetails['Creator']['Name']},
+                        "timestamp": itemDetails['Created']
+                }
                 ]
             })
     return currentItems
