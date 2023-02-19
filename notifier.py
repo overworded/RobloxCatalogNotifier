@@ -38,6 +38,7 @@ def compareItems(currentItems, previousItems, webhook):
     if addedItems:
         printWithTS(f"{len(addedItems)} new item(s) added!")
         for item in addedItems:
+            time.sleep(15) # wait so you dont get ratelimited.
             details = itemDetails(item['id'])
             printWithTS(f"ID: {item['id']}, Type: {item['itemType']}")
             requests.post(webhook, json={"embeds": [{ # discord webhook info.
