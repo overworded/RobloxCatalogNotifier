@@ -4,8 +4,8 @@ from datetime import datetime
 
 RobloxCatalog = "https://catalog.roblox.com/v1/search/items?category=All&creatorName=Roblox&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3"
 UGCCatalog = "https://catalog.roblox.com/v1/search/items?category=Accessories&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3&subcategory=Accessories"
-RobloxWebhook = "https://discord.com/api/webhooks/......"
-UGCWebhook = "https://discord.com/api/webhooks/......"
+RobloxWebhook = "https://discord.com/api/webhooks/..."
+UGCWebhook = "https://discord.com/api/webhooks/..."
 
 def fetchItems(api):
     response = requests.get(api)
@@ -38,20 +38,20 @@ def compareItems(currentItems, previousItems, webhook):
     if addedItems:
         printWithTS(f"{len(addedItems)} new item(s) added!")
         for item in addedItems:
-            itemDetails = itemDetails(item['id'])
+            details = itemDetails(item['id'])
             printWithTS(f"ID: {item['id']}, Type: {item['itemType']}")
             requests.post(webhook, json={"embeds": [{
-                        "title": itemDetails['Name'],
+                        "title": details['Name'],
                         "url": f"https://www.roblox.com/catalog/{item['id']}",
                         "fields": [
-                            {"name": "Price", "value": itemDetails['PriceInRobux'], "inline": True},
-                            {"name": "Creator", "value": itemDetails["Creator"]["Name"], "inline": True},
-                            {"name": "Description", "value": itemDetails['Description']},
+                            {"name": "Price", "value": details['PriceInRobux'], "inline": True},
+                            {"name": "Creator", "value": details["Creator"]["Name"], "inline": True},
+                            {"name": "Description", "value": details['Description']},
                         ],
                         "color": 0x84FF9B,
                         "thumbnail": {"url": thumbnail(item['id'])},
-                        "footer": {"text": itemDetails['Creator']['Name']},
-                        "timestamp": itemDetails['Created']
+                        "footer": {"text": details['Creator']['Name']},
+                        "timestamp": details['Created']
                 }]})
     return currentItems
 
