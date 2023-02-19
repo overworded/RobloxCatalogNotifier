@@ -10,7 +10,7 @@ The Roblox Catalog Notifier is a tool that notifies you when a new item is poste
 
 ## Getting Started
 
-1. Clone this repository to your local machine using `git clone https://github.com/your-username/roblox-catalog-notifier.git` or simply downloading the files.
+1. Clone this repository to your local machine using `git clone https://github.com/overworded/RobloxCatalogNotifier.git` or simply downloading the files.
 2. Install the required dependencies, `time`, `datetime`, and `requests`
 4. Run the file and wait for something new to be uploaded.
 
