@@ -34,11 +34,10 @@ def itemDetails(itemid):
     return response.json()
 
 def postItem(item, webhook):
-    # try to get the item details, but if it fails, just wait 15 seconds and try again.
-    try:
+    try: # try to get the item details, but if it fails, just wait 30 seconds and try again.
         details = itemDetails(item['id'])
+    except: # ratelimited part
         printWithTS("Waiting 30 seconds to fetch item details because of ratelimit!")
-    except:
         time.sleep(30)
         details = itemDetails(item['id'])
 
