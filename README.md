@@ -16,5 +16,4 @@ The Roblox Catalog Notifier is a tool that notifies you when a new item is poste
 
 ## License
 
-- his project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
--  dont care who uses this or what they use it for, i just wanted a neat license that made sure no one tries to sell it.
+this project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
