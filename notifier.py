@@ -40,9 +40,7 @@ def compareItems(currentItems, previousItems, webhook):
         for item in addedItems:
             itemDetails = itemDetails(item['id'])
             printWithTS(f"ID: {item['id']}, Type: {item['itemType']}")
-            requests.post(webhook, json={
-                "embeds": [
-                    {
+            requests.post(webhook, json={"embeds": [{
                         "title": itemDetails['Name'],
                         "url": f"https://www.roblox.com/catalog/{item['id']}",
                         "fields": [
@@ -54,9 +52,7 @@ def compareItems(currentItems, previousItems, webhook):
                         "thumbnail": {"url": thumbnail(item['id'])},
                         "footer": {"text": itemDetails['Creator']['Name']},
                         "timestamp": itemDetails['Created']
-                }
-                ]
-            })
+                }]})
     return currentItems
 
 def scan():
