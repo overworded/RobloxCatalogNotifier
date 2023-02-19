@@ -33,25 +33,35 @@ def itemDetails(itemid):
     response = requests.get(url)
     return response.json()
 
+def postItem(item, webhook):
+    # try to get the item details, but if it fails, just wait 15 seconds and try again.
+    try:
+        details = itemDetails(item['id'])
+        printWithTS("Waiting 30 seconds to fetch item details because of ratelimit!")
+    except:
+        time.sleep(30)
+        details = itemDetails(item['id'])
+
+    printWithTS(f"ID: {item['id']}, Type: {item['itemType']}")
+    requests.post(webhook, json={"embeds": [{ # discord webhook info.
+                "title": details['Name'],
+                "url": f"https://www.roblox.com/catalog/{item['id']}",
+                "fields": [
+                    {"name": "Price", "value": details['PriceInRobux'], "inline": True},
+                    {"name": "Creator", "value": details["Creator"]["Name"], "inline": True},
+                    {"name": "Description", "value": details['Description']},
+                ],
+                "color": 0x84FF9B,
+                "thumbnail": {"url": thumbnail(item['id'])},
+        }]})
+
+
 def compareItems(currentItems, previousItems, webhook):
     addedItems = [item for item in currentItems if item not in previousItems]
     if addedItems:
         printWithTS(f"{len(addedItems)} new item(s) added!")
         for item in addedItems:
-            time.sleep(15) # wait so you dont get ratelimited.
-            details = itemDetails(item['id'])
-            printWithTS(f"ID: {item['id']}, Type: {item['itemType']}")
-            requests.post(webhook, json={"embeds": [{ # discord webhook info.
-                        "title": details['Name'],
-                        "url": f"https://www.roblox.com/catalog/{item['id']}",
-                        "fields": [
-                            {"name": "Price", "value": details['PriceInRobux'], "inline": True},
-                            {"name": "Creator", "value": details["Creator"]["Name"], "inline": True},
-                            {"name": "Description", "value": details['Description']},
-                        ],
-                        "color": 0x84FF9B,
-                        "thumbnail": {"url": thumbnail(item['id'])},
-                }]})
+            postItem(item, webhook)
     return currentItems
 
 def scan():
