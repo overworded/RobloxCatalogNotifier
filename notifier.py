@@ -85,7 +85,7 @@ def scan():
         printWithTS("Scanning for new items...")
         RobloxItems = compareItems(fetchItems(RobloxCatalog), RobloxItems, RobloxItemBatch)
         UGCItems = compareItems(fetchItems(UGCCatalog), UGCItems, UGCItemBatch)
-        scanCount += 1
+        scanCount >= 1
         if scanCount == 4:# every 4 scans request the item details.
             if not RobloxItemBatch and not UGCItemBatch: # check if there are any items in the batch.
                 printWithTS("No items in the batch, skipping details request.")
