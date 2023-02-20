@@ -69,12 +69,13 @@ def postItem(item, webhook, batch):
                 "title": item['name'],
                 "url": f"https://www.roblox.com/catalog/{item['id']}",
                 "fields": [
-                    {"name": "Price", "value": item['price'], "inline": True},
+                    {"name": "Price", "value": f"{item['price'] if 'price' in item else 'Off Sale'}", "inline": True},
                     {"name": "Creator", "value": item["creatorName"], "inline": True},
                     {"name": "Description", "value": item['description']},
                 ],
                 "color": 0x84FF9B,
                 "thumbnail": {"url": thumbnail(item['id'])},}]})
+
 
 
 def scan():
