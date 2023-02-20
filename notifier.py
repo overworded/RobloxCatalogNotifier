@@ -2,18 +2,19 @@ import requests
 import time
 from datetime import datetime
 
-cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_BC415058B20577C03FD5C6EA04459562D206D4BD4CD0A680292E61613AEA3045A40B62ACB40A7E76A842C5B513DD6E7AF3B82692E80277B8E7FF4D632A92A5817C4E60035589E7B8044B6F68F63508A022D593A9B21BFA5E4C254CC621BC9537C29F1F56D052EBD8B832DC01484AFA745B4ED85FFDA3A3E5B62CFC30204AD4A092E80ED66EEA4EDBA46559AD43023AE06F7A613B1C821243752D1C3DDADB731B78AE546C021ACE4D56BCC6199395B69C216282141F86DABFB25ED31EDB59EEB1568F68C48619E200F5F785E7EA621F0F1029DA42C49DB6C43BDBCC3F9026D45B516F6CB6B7E588C4C57018FA0905898ED9B1A1AD4CFEB769C496D5EDD61FED97DC3C5AB60032B7E1F2E7BEC4BDA3B69E38AD1E6B1DF2601831E183FDCBDABCF1EF87A71A118FAD3C20C30FDDD214563F412D341B5F11698D15B8283DA3BD1DB9AA87E31A4D2605D385485534309B640EB1BCE16A1657A420FD670A3B64DFFCC9025E4295D6A2AD57F4EF094694B4D93ED3CA4DCD" # roblo security cookie, needed to get the item details in a batch request.
+cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_..." # roblo security cookie, needed to get the item details in a batch request.
 RobloxCatalog = "https://catalog.roblox.com/v1/search/items?category=All&creatorName=Roblox&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3" # catalog link for items created by the Roblox account.
 UGCCatalog = "https://catalog.roblox.com/v1/search/items?category=Accessories&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3&subcategory=Accessories" # catalog link for items created by users.
-RobloxWebhook = "https://discord.com/api/webhooks/1076814234538741800/0mEqqd4Lxv8W_q-JthU4Kgwwek8LdEI8BRtZPq3cNokZ45LC2JaKe4cihdpQXWoLvHaF" # Webook url for the Roblox items.
-UGCWebhook = "https://discord.com/api/webhooks/1076814116666232902/qpSMZS9-4f5dnJpB863xpwywjkISgYF_C1vLKbugaTt-P-I7btjK8OvPyRCsLwbRMkyp" # Webook url for the user generated items.
+RobloxWebhook = "https://discord.com/api/webhooks/1076814234538741800/..." # Webook url for the Roblox items.
+UGCWebhook = "https://discord.com/api/webhooks/1076814116666232902/..." # Webook url for the user generated items.
 authURL = "https://auth.roblox.com/v2/logout" # for getting x-csrf-token.
 def fetchItems(api):
     try: response = requests.get(api)
     except: printWithTS("Failed to fetch item list."); time.sleep(5)
-    if response.status_code == 200:
-        return response.json()["data"]
-    else:
+    try:
+        re= response.json()["data"]
+        return re
+    except:
         print("Failed to fetch item list:", response.text)
         return []
 
@@ -49,7 +50,7 @@ def compareItems(currentItems, previousItems, Batch):
         printWithTS(f"{len(addedItems)} new item(s) added!")
         for item in addedItems:
             # add the item to the batch dictionary with the format
-            Batch.append({"itemType": item['itemType'], "id": item['id']})
+            Batch.append({"id": item['id'], "itemType": item['itemType']})
             printWithTS(f"Added {item['id']} to batch!")
         return currentItems
     else:
@@ -77,7 +78,8 @@ def postItem(item, webhook, batch):
                 "url": f"https://www.roblox.com/catalog/{item['id']}",
                 # if the price is not there then its off sale
                 "fields": [
-                    {"name": "Price", "value": f"{item['price'] if 'price' in item else 'Off Sale'}", "inline": True},
+            # if the price is not there then its off sale
+                    {"name": "Price", "value": item['price'] if 'price' in item else item['price'], "inline": True},
                     {"name": "Creator", "value": item["creatorName"], "inline": True},
                     {"name": "Description", "value": item['description']},
                 ],
