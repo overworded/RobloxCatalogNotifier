@@ -1,12 +1,12 @@
-# Roblox Catalog Notifier
+# Roblox UGC Notifier
 
-The Roblox Catalog Notifier is a tool that notifies you when a new item is posted in the Roblox Catalog or User-Generated Content Catalog, depending on which API you provide. The tool sends a notification to your Discord webhook for the relevant catalog.
+The Roblox Catalog Notifier is a tool that notifies you when a new item is posted in the User-Generated Content Catalog. The tool sends a notification to your Discord webhook.
 
 ## Features
 
-- Monitors the Roblox Catalog or User-Generated Content Catalog for new items.
+- Monitors the Roblox User-Generated Content Catalog for new items.
 - Sends a notification to your Discord webhook when a new item is added.
-- Supports both the Roblox Catalog API and the User-Generated Content Catalog API, as well as any other APIs you provide it with.
+- Supports both the User-Generated Content Catalog API, as well as any other APIs you provide it with.
 
 ## Getting Started
 
