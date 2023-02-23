@@ -2,12 +2,10 @@ import requests
 import time
 from datetime import datetime
 
-cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_..." # roblo security cookie, needed to get the item details in a batch request.
-RobloxCatalog = "https://catalog.roblox.com/v1/search/items?category=All&creatorName=Roblox&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3" # catalog link for items created by the Roblox account.
-UGCCatalog = "https://catalog.roblox.com/v1/search/items?category=Accessories&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3&subcategory=Accessories" # catalog link for items created by users.
-RobloxWebhook = "https://discord.com/api/webhooks/1076814234538741800/..." # Webook url for the Roblox items.
-UGCWebhook = "https://discord.com/api/webhooks/1076814116666232902/..." # Webook url for the user generated items.
-authURL = "https://auth.roblox.com/v2/logout" # for getting x-csrf-token.
+Cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_..." # roblo security cookie, needed to get the item details in a batch request.
+CatalogAPI = "https://catalog.roblox.com/v1/search/items?category=Accessories&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3&subcategory=Accessories" # catalog link for items created by users.
+Webhook = "https://discord.com/api/webhooks/..." # Webook url for the Roblox items.
+AuthURL = "https://auth.roblox.com/v2/logout" # for getting x-csrf-token.
 def fetchItems(api):
     try: response = requests.get(api)
     except: printWithTS("Failed to fetch item list."); time.sleep(5)
@@ -17,13 +15,9 @@ def fetchItems(api):
     except:
         print("Failed to fetch item list:", response.text)
         return []
-
-RobloxItems = fetchItems(RobloxCatalog)
-UGCItems = fetchItems(UGCCatalog)
-RobloxItemBatch = []
-UGCItemBatch = []
-RobloxDetailsBatch = []
-UGCDetailsBatch = []
+Items = fetchItems(CatalogAPI)
+ItemBatch = []
+DetailsBatch = []
 
 
 def printWithTS(text): # i like timestamps.
@@ -33,10 +27,10 @@ def printWithTS(text): # i like timestamps.
 
 def itemDetails(Batch):
     url = "https://catalog.roblox.com/v1/catalog/items/details"
-    xcsrfReq = requests.post(authURL, cookies={'.ROBLOSECURITY': cookie})
+    xcsrfReq = requests.post(AuthURL, cookies={'.ROBLOSECURITY': Cookie})
     xcsrf = xcsrfReq.headers["x-csrf-token"]
     try:
-        response = requests.post(url, headers={"cookie": ".ROBLOSECURITY=" + cookie + ";", "x-csrf-token": xcsrf, "referer": "https://www.roblox.com/"}, json={"items": Batch})
+        response = requests.post(url, headers={"cookie": ".ROBLOSECURITY=" + Cookie + ";", "x-csrf-token": xcsrf, "referer": "https://www.roblox.com/"}, json={"items": Batch})
         return response.json()["data"]
     except:
         printWithTS("Failed to fetch item details.")
@@ -81,41 +75,35 @@ def postItem(item, webhook, batch):
             # if the price is not there then its off sale
                     {"name": "Price", "value": item['price'] if 'price' in item else item['price'], "inline": True},
                     {"name": "Creator", "value": item["creatorName"], "inline": True},
-                    {"name": "Description", "value": item['description']},
+                    {"name": "Description", "value": item['description'].splitlines()[0]}
                 ],
                 "color": 0x84FF9B,
-                "thumbnail": {"url": thumbnail(item['id'])},}]})
+                "image": {"url": thumbnail(item['id'])},
+                }]})
     except:
         printWithTS("Failed to post item to discord webhook.")
 
 
 def scan():
-    global RobloxItems, UGCItems, RobloxItemBatch, UGCItemBatch, RobloxDetailsBatch, UGCDetailsBatch
+    global Items, ItemBatch, DetailsBatch
     scanCount = 0
     while True:
         # scan for new items.
         printWithTS("Scanning for new items...")
-        RobloxItems = compareItems(fetchItems(RobloxCatalog), RobloxItems, RobloxItemBatch)
-        UGCItems = compareItems(fetchItems(UGCCatalog), UGCItems, UGCItemBatch)
+        Items = compareItems(fetchItems(CatalogAPI), Items, ItemBatch)
         scanCount += 1
         if scanCount >= 4:# every 4 scans request the item details.
-            if not RobloxItemBatch and not UGCItemBatch: # check if there are any items in the batch.
+            if not ItemBatch: # check if there are any items in the batch.
                 printWithTS("No items in the batch, skipping details request.")
             else:
                 printWithTS("Scanning for item details...")
                 # request the item details.
-                RobloxDetailsBatch = itemDetails(RobloxItemBatch) 
-                UGCDetailsBatch = itemDetails(UGCItemBatch)
-                for item in RobloxDetailsBatch: # post the items.
-                    postItem(item, RobloxWebhook, RobloxDetailsBatch)
-                for item in UGCDetailsBatch: # post the items.
-                    postItem(item, UGCWebhook, UGCDetailsBatch)
-                print(RobloxDetailsBatch)
+                ItemDetailsBatch = itemDetails(ItemBatch)
+                for item in ItemDetailsBatch: # post the items.
+                    postItem(item, Webhook, DetailsBatch)
                 # clear the batches.
-                RobloxItemBatch = []
-                UGCItemBatch = []
-                RobloxDetailsBatch = []
-                UGCDetailsBatch = []
+                ItemBatch = []
+                DetailsBatch = []
             scanCount = 0
         time.sleep(15)
 scan()
