@@ -14,11 +14,8 @@ The Roblox Catalog Notifier is a tool that notifies you when a new item is poste
 2. Install the required dependencies, `time`, `datetime`, and `requests`.
 4. Run the file and wait for something new to be uploaded.
 
-## Examples
-![image](https://user-images.githubusercontent.com/75399033/220198852-0953d40f-68a5-4ae5-b08e-ef63fc51e712.png)
-![image](https://user-images.githubusercontent.com/75399033/220198913-fa73ebaa-1eba-438d-af84-307e0ce2e9f3.png)
-![image](https://user-images.githubusercontent.com/75399033/220198776-989a3113-b2c0-4dda-bf2b-85f8e8e59f9e.png)
-
+## Example
+![image](https://user-images.githubusercontent.com/75399033/220914194-6d063cf7-d3cf-4bff-b855-45b62876568e.png)
 
 ## License
 
