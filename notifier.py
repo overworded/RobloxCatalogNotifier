@@ -7,8 +7,12 @@ CatalogAPI = "https://catalog.roblox.com/v1/search/items?category=Accessories&in
 Webhook = "https://discord.com/api/webhooks/..." # Webook url for the Roblox items.
 AuthURL = "https://auth.roblox.com/v2/logout" # for getting x-csrf-token.
 def fetchItems(api):
-    try: response = requests.get(api)
-    except: printWithTS("Failed to fetch item list."); time.sleep(5)
+    try:
+      response = response.json()["data"]
+      return response
+    except:
+      print("Failed to fetch item list.")
+      return []
 
 Items = fetchItems(CatalogAPI)
 ItemBatch = []
