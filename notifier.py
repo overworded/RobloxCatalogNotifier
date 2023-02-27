@@ -9,12 +9,7 @@ AuthURL = "https://auth.roblox.com/v2/logout" # for getting x-csrf-token.
 def fetchItems(api):
     try: response = requests.get(api)
     except: printWithTS("Failed to fetch item list."); time.sleep(5)
-    try:
-        re= response.json()["data"]
-        return re
-    except:
-        print("Failed to fetch item list:", response.text)
-        return []
+
 Items = fetchItems(CatalogAPI)
 ItemBatch = []
 DetailsBatch = []
