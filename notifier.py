@@ -3,16 +3,18 @@ import time
 from datetime import datetime
 
 Cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_..." # roblo security cookie, needed to get the item details in a batch request.
-CatalogAPI = "https://catalog.roblox.com/v1/search/items?category=Accessories&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3&subcategory=Accessories" # catalog link for items created by users.
+CatalogAPI = "https://catalog.roblox.com/v1/search/items?category=Accessories&creatorName=Roblox&includeNotForSale=true&limit=120&salesTypeFilter=1&sortType=3&subcategory=Accessories" # catalog link for items created by users.
 Webhook = "https://discord.com/api/webhooks/..." # Webook url for the Roblox items.
 AuthURL = "https://auth.roblox.com/v2/logout" # for getting x-csrf-token.
 def fetchItems(api):
-    try: 
-        return requests.get(api).json()["data"]
+    try: response = requests.get(api)
+    except: printWithTS("Failed to fetch item list."); time.sleep(5)
+    try:
+        re= response.json()["data"]
+        return re
     except:
-        print("Failed to fetch item list.")
+        print("Failed to fetch item list:", response.text)
         return []
-
 Items = fetchItems(CatalogAPI)
 ItemBatch = []
 DetailsBatch = []
@@ -61,19 +63,15 @@ def thumbnail(itemid): # getting the thumbnail of the item from roblox because t
     return imageUrl
 
 
-def postItem(item, webhook, batch):
-    print(item)
+def postItem(item):
     printWithTS(f"ID: {item['id']}, Type: {item['itemType']}")
     try:
-        requests.post(webhook, json={"embeds": [{ # discord webhook info.
+        requests.post(Webhook, json={"embeds": [{ # discord webhook info.
                 "title": item['name'],
                 "url": f"https://www.roblox.com/catalog/{item['id']}",
-                # if the price is not there then its off sale
                 "fields": [
-            # if the price is not there then its off sale
-                    {"name": "Price", "value": item['price'] if 'price' in item else item['price'], "inline": True},
-                    {"name": "Creator", "value": item["creatorName"], "inline": True},
-                    {"name": "Description", "value": item['description'].splitlines()[0]}
+                    {"name": "Price", "value": item['price'] if 'price' in item else 'Off-Sale', "inline": True},
+                    {"name": "Description", "value": item['description']}
                 ],
                 "color": 0x84FF9B,
                 "image": {"url": thumbnail(item['id'])},
@@ -83,14 +81,14 @@ def postItem(item, webhook, batch):
 
 
 def scan():
-    global Items, ItemBatch, DetailsBatch
+    global Items, ItemBatch
     scanCount = 0
     while True:
         # scan for new items.
         printWithTS("Scanning for new items...")
         Items = compareItems(fetchItems(CatalogAPI), Items, ItemBatch)
         scanCount += 1
-        if scanCount >= 4:# every 4 scans request the item details.
+        if scanCount >= 2:# every 2 scans request the item details.
             if not ItemBatch: # check if there are any items in the batch.
                 printWithTS("No items in the batch, skipping details request.")
             else:
@@ -98,10 +96,10 @@ def scan():
                 # request the item details.
                 ItemDetailsBatch = itemDetails(ItemBatch)
                 for item in ItemDetailsBatch: # post the items.
-                    postItem(item, Webhook, DetailsBatch)
+                    postItem(item)
                 # clear the batches.
                 ItemBatch = []
                 DetailsBatch = []
             scanCount = 0
-        time.sleep(15)
+        time.sleep(3)
 scan()
